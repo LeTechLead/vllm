@@ -12,6 +12,7 @@ from vllm.config import VllmConfig
 from vllm.model_executor.layers.logits_processor import LogitsProcessor
 from vllm.model_executor.layers.mamba.mamba_utils import MambaStateCopyFunc
 from vllm.model_executor.layers.quantization.auto_awq import AutoAWQConfig
+from vllm.model_executor.layers.quantization.fp8 import Fp8Config
 from vllm.model_executor.layers.quantization.base_config import QuantizeMethodBase
 from vllm.model_executor.layers.sensenova_loop_mhc import MHCRouter
 from vllm.model_executor.layers.vocab_parallel_embedding import (
@@ -249,9 +250,11 @@ class SenseNovaLoopForConditionalGeneration(
             )
         self.quant_config = vllm_config.quant_config
         if self.quant_config is not None and not isinstance(
-            self.quant_config, AutoAWQConfig
+            self.quant_config, (AutoAWQConfig, Fp8Config)
         ):
-            raise ValueError("SenseNova Loop supports only unquantized and AWQ weights")
+            raise ValueError(
+                "SenseNova Loop supports only unquantized, AWQ and FP8 weights"
+            )
         self.scheduler_config = vllm_config.scheduler_config
         self.model = SenseNovaLoopModel(
             vllm_config=vllm_config, prefix=maybe_prefix(prefix, "model")
